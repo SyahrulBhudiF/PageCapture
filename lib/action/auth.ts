@@ -1,26 +1,32 @@
 "use server";
 
-import {apiFetch} from "@/lib/api/client";
-import {tokenStore} from "@/lib/api/token";
-import {LoginSchema, LoginResponseSchema} from "@/lib/schema/auth";
-import {actionClient} from "@/lib/action/client";
-import {Effect} from "effect";
+import { actionClient } from "@/lib/action/client";
+import { apiFetch } from "@/lib/api/client";
+import { TokenStore } from "@/lib/api/token";
+import { LoginResponseSchema, LoginSchema } from "@/lib/schema/auth";
+import { Effect } from "effect";
 
 export const loginAction = actionClient
-    .inputSchema(LoginSchema)
-    .action(async ({ parsedInput }) =>
-        Effect.gen(function* () {
-            const res = yield* apiFetch("/auth/login", {
-                method: "POST",
-                body: parsedInput,
-                schema: LoginResponseSchema,
-                auth: false,
-            });
+	.inputSchema(LoginSchema)
+	.action(async ({ parsedInput }) =>
+		Effect.gen(function* () {
+			const tokenStore = yield* TokenStore;
 
-            yield* Effect.sync(() => {
-                tokenStore.set(res.accessToken);
-            });
+			const response = yield* apiFetch("/auth/login", {
+				method: "POST",
+				body: parsedInput,
+				schema: LoginResponseSchema,
+				auth: false,
+			});
+			tokenStore.set(response.accessToken);
 
-            return { success: true };
-        }).pipe(Effect.runPromise)
-    );
+			return { success: true };
+		}).pipe(
+			Effect.withSpan("loginAction"),
+			Effect.catchTag("ApiError", (error) =>
+				Effect.succeed({ success: false, error: error.message }),
+			),
+			Effect.provide(TokenStore.Default),
+			Effect.runPromise,
+		),
+	);
