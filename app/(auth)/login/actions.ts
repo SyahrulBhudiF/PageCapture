@@ -1,19 +1,38 @@
-'use server';
+"use server";
 
-import {loginAction} from "@/lib/action/auth";
+import { apiFetch } from "@/lib/api/client";
+import { TokenStore } from "@/lib/api/token";
+import { LoginResponseSchema, LoginSchema } from "@/lib/schema/auth";
+import { Effect } from "effect";
 
 export type LoginState = { error?: string; success?: boolean } | null;
 
-export async function login(prevState: LoginState, formData: FormData): Promise<LoginState> {
-    const data = {
-        email: formData.get("email") as string,
-        password: formData.get("password") as string,
-    }
+export async function login(_prevState: LoginState, formData: FormData) {
+	return Effect.gen(function* () {
+		const tokenStore = yield* TokenStore;
 
-    const {data: result, validationErrors, serverError} = await loginAction(data);
+		const parsedInput = LoginSchema.safeParse({
+			email: formData.get("email") as string,
+			password: formData.get("password") as string,
+		});
+		if (!parsedInput.success) return { error: "Invalid email or password." };
 
-    if (serverError) return {error: serverError} as unknown as LoginState;
-    if (validationErrors) return {error: "Invalid email or password."};
+		const response = yield* apiFetch("auth/login", {
+			method: "POST",
+			body: parsedInput.data,
+			schema: LoginResponseSchema,
+			auth: false,
+		});
 
-    return {success: true};
+		tokenStore.set(response.accessToken);
+
+		return { success: true, error: undefined };
+	}).pipe(
+		Effect.withSpan("login"),
+		Effect.catchTag("ApiError", (error) =>
+			Effect.succeed({ success: false, error: error.message }),
+		),
+		Effect.provide(TokenStore.Default),
+		Effect.runPromise,
+	);
 }
