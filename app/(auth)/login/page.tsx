@@ -7,19 +7,12 @@ import { useActionState } from "react";
 import { login, type LoginState } from "@/app/(auth)/login/actions";
 
 export default function Login() {
-	const [state, formAction, pending] = useActionState<LoginState, FormData>(
-		login,
-		null,
-	);
+	const [state, formAction, pending] = useActionState<LoginState, FormData>(login, null);
 
 	return (
 		<div className="flex flex-col items-center justify-center h-full gap-6">
 			<p className="font-semibold text-5xl">Welcome Back!</p>
-			<Form
-				action={formAction}
-				formMethod="POST"
-				className="flex flex-col gap-16 w-[80%]"
-			>
+			<Form action={formAction} formMethod="POST" className="flex flex-col gap-16 w-[80%]">
 				<div className="space-y-6">
 					<Label htmlFor="email" className="text-md flex flex-col gap-2">
 						<p className="text-start w-full">Email</p>
@@ -44,9 +37,7 @@ export default function Login() {
 						/>
 					</Label>
 				</div>
-				{state?.error && (
-					<p className="text-red-600">{JSON.stringify(state.error)}</p>
-				)}
+				{state?.error && <p className="text-red-600">{JSON.stringify(state.error)}</p>}
 				{state?.success && <p className="text-green-600">Logged in!</p>}
 				<button
 					type="submit"

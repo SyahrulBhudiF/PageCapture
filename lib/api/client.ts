@@ -55,8 +55,7 @@ export function apiFetch<TSchema = unknown, TBody = Record<string, unknown>>(
 				method: opts.method || "GET",
 				headers,
 				body: opts.body ? JSON.stringify(opts.body) : undefined,
-				credentials:
-					opts.auth || path === "/auth/login" ? "include" : "same-origin",
+				credentials: opts.auth || path === "/auth/login" ? "include" : "same-origin",
 			}),
 		);
 
