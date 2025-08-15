@@ -1,18 +1,20 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import type { StandardSchemaV1Issue } from "@tanstack/form-core";
+import { z } from "zod";
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
 }
 
-export function errFormat(err?: string | StandardSchemaV1Issue[] | null): string {
-	if (!err) return "";
-	if (Array.isArray(err)) {
-		return err
-			.map((e) => e?.message ?? "")
-			.filter(Boolean)
-			.join(", ");
+export function zodFieldErrors(error: z.ZodError): Record<string, string[]> {
+	const tree = z.treeifyError(error);
+
+	const fieldErrors: Record<string, string[]> = {};
+	if ("properties" in tree && tree.properties) {
+		for (const [key, value] of Object.entries(tree.properties)) {
+			fieldErrors[key] = value.errors ?? [];
+		}
 	}
-	return err;
+
+	return fieldErrors;
 }

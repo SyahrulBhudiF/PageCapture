@@ -3,9 +3,15 @@
 import { apiFetch } from "@/lib/api/client";
 import { TokenStore } from "@/lib/api/token";
 import { LoginResponseSchema, LoginSchema } from "@/lib/schema/auth";
+import { zodFieldErrors } from "@/lib/utils";
 import { Effect } from "effect";
+import z from "zod";
 
-export type LoginState = { error?: string; success?: boolean } | null;
+export type LoginState = {
+	error?: string;
+	success?: boolean;
+	fieldErrors?: Record<string, string[]>;
+} | null;
 
 export async function login(_prevState: LoginState, formData: FormData) {
 	return Effect.gen(function* () {
@@ -15,7 +21,13 @@ export async function login(_prevState: LoginState, formData: FormData) {
 			email: formData.get("email") as string,
 			password: formData.get("password") as string,
 		});
-		if (!parsedInput.success) return { error: "Invalid email or password." };
+
+		if (!parsedInput.success) {
+			return {
+				success: false,
+				fieldErrors: zodFieldErrors(parsedInput.error),
+			};
+		}
 
 		const response = yield* apiFetch("auth/login", {
 			method: "POST",
@@ -24,14 +36,53 @@ export async function login(_prevState: LoginState, formData: FormData) {
 			auth: false,
 		});
 
-		tokenStore.set(response.accessToken);
+		tokenStore.set(response.access_token);
 
 		return { success: true, error: undefined };
 	}).pipe(
 		Effect.withSpan("login"),
-		Effect.catchTag("ApiError", (error) =>
-			Effect.succeed({ success: false, error: error.message }),
-		),
+		Effect.catchTags({
+			ApiError: (error) => Effect.succeed({ success: false, error: error.message }),
+			UnauthorizedError: () =>
+				Effect.succeed({ success: false, error: "Email or Password is incorrect" }),
+			ParseError: (error) => Effect.succeed({ success: false, error: error.message }),
+			NetworkError: () => Effect.succeed({ success: false, error: "Network error occurred" }),
+		}),
+		Effect.provide(TokenStore.Default),
+		Effect.runPromise,
+	);
+}
+
+export async function verifyGoogleToken(googleToken: string) {
+	return Effect.gen(function* () {
+		const tokenStore = yield* TokenStore;
+
+		const requestBody = {
+			token: googleToken,
+		};
+
+		const response = yield* apiFetch("auth/google/verify", {
+			method: "POST",
+			body: requestBody,
+			schema: LoginResponseSchema,
+			auth: false,
+		});
+
+		tokenStore.set(response.access_token);
+
+		return { success: true, error: undefined };
+	}).pipe(
+		Effect.withSpan("verifyGoogleToken"),
+		Effect.catchTags({
+			ApiError: (error) => Effect.succeed({ success: false, error: error.message }),
+			UnauthorizedError: () =>
+				Effect.succeed({
+					success: false,
+					error: "Google login failed. The token might be invalid or expired.",
+				}),
+			ParseError: (error) => Effect.succeed({ success: false, error: error.message }),
+			NetworkError: () => Effect.succeed({ success: false, error: "Network error occurred" }),
+		}),
 		Effect.provide(TokenStore.Default),
 		Effect.runPromise,
 	);

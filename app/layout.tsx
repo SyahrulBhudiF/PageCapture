@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import type React from "react";
+import { Toaster } from "@/components/ui/sonner";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
 	variable: "--plus-jakarta-sans",
@@ -18,9 +20,16 @@ export default function RootLayout({
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
+	const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "";
+
 	return (
 		<html lang="en">
-			<body className={`${plusJakartaSans.variable} antialiased w-full h-screen`}>{children}</body>
+			<body className={`${plusJakartaSans.variable} antialiased w-full h-screen`}>
+				<GoogleOAuthProvider clientId={googleClientId}>
+					{children}
+					<Toaster richColors />
+				</GoogleOAuthProvider>
+			</body>
 		</html>
 	);
 }

@@ -8,16 +8,21 @@ export default function ({
 	children: React.ReactNode;
 }>) {
 	return (
-		<div className="w-full h-screen py-8 px-[30vh] border">
-			<p className="font-bold text-base">Page Capture</p>
-			<div className="flex flex-col justify-center h-full">
-				<div className="flex gap-10 shadow-xl rounded-xl pl-6 h-[80vh]">
-					<div className="flex flex-col gap-6 w-full py-6">
-						<ChevronLeft className="w-6 h-6" />
+		<main className="w-screen h-screen flex flex-col bg-white">
+			<header className="py-8">
+				<div className="w-full max-w-7xl mx-auto px-4">
+					<p className="font-bold text-base">Page Capture</p>
+				</div>
+			</header>
+
+			<div className="flex-1 flex justify-center items-center px-4 pb-8">
+				<div className="flex w-full max-w-7xl shadow-xl rounded-xl h-[80vh] max-h-xl">
+					<div className="flex flex-col gap-6 w-full p-6 md:p-8">
+						<ChevronLeft className="w-6 h-6 cursor-pointer" />
 						{children}
 					</div>
 
-					<div className="w-full h-full relative">
+					<div className="hidden md:block w-full h-full relative">
 						<Image
 							src="/img/banner.png"
 							fill
@@ -28,6 +33,6 @@ export default function ({
 					</div>
 				</div>
 			</div>
-		</div>
+		</main>
 	);
 }

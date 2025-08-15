@@ -8,6 +8,8 @@ type HttpMethods = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
 class UnauthorizedError extends Data.TaggedError("UnauthorizedError") {}
 
+class NetworkError extends Data.TaggedError("NetworkError")<{ message: string }> {}
+
 class ParseError extends Data.TaggedError("ParseError")<{
 	message: string;
 }> {}
@@ -18,7 +20,9 @@ class ApiError extends Data.TaggedError("ApiError")<{
 }> {}
 
 const ErrorSchema = z.object({
+	status: z.number(),
 	message: z.string(),
+	data: z.any().optional(),
 });
 
 type FetchOptions<TSchema, TBody> = {
@@ -34,7 +38,7 @@ export function apiFetch<TSchema = unknown, TBody = Record<string, unknown>>(
 	opts: FetchOptions<TSchema, TBody>,
 ): Effect.Effect<
 	TSchema,
-	ApiError | ConfigError | UnauthorizedError | ParseError | UnknownException,
+	ApiError | ConfigError | UnauthorizedError | ParseError | UnknownException | NetworkError,
 	never
 > {
 	return Effect.gen(function* () {
@@ -50,14 +54,19 @@ export function apiFetch<TSchema = unknown, TBody = Record<string, unknown>>(
 			headers.set("Authorization", `Bearer ${tokenStore.get()}`);
 		}
 
-		const response = yield* Effect.tryPromise(() =>
-			fetch(`${baseUrl}/${path}`, {
-				method: opts.method || "GET",
-				headers,
-				body: opts.body ? JSON.stringify(opts.body) : undefined,
-				credentials: opts.auth || path === "/auth/login" ? "include" : "same-origin",
-			}),
-		);
+		const response = yield* Effect.tryPromise({
+			try: () =>
+				fetch(`${baseUrl}/${path}`, {
+					method: opts.method || "GET",
+					headers,
+					body: opts.body ? JSON.stringify(opts.body) : undefined,
+					credentials: opts.auth || path === "/auth/login" ? "include" : "same-origin",
+				}),
+			catch: (err) =>
+				new NetworkError({
+					message: err instanceof Error ? err.message : "Network error occurred",
+				}),
+		});
 
 		if (
 			opts.auth &&
@@ -65,12 +74,11 @@ export function apiFetch<TSchema = unknown, TBody = Record<string, unknown>>(
 			!opts.isRefreshAttempt &&
 			path !== "/auth/refresh"
 		) {
-			const refreshRes = yield* Effect.tryPromise(() =>
-				fetch(`${baseUrl}/auth/refresh`, {
-					method: "POST",
-					credentials: "include",
-				}),
-			);
+			const refreshRes = yield* Effect.tryPromise({
+				try: () => fetch(`${baseUrl}/auth/refresh`, { method: "POST", credentials: "include" }),
+				catch: (err) =>
+					new NetworkError({ message: err instanceof Error ? err.message : "Network error" }),
+			});
 
 			if (refreshRes.ok) {
 				const refreshData = yield* Effect.tryPromise(() => refreshRes.json());
@@ -108,7 +116,7 @@ export function apiFetch<TSchema = unknown, TBody = Record<string, unknown>>(
 			});
 		}
 
-		const parsed = opts.schema.safeParse(json);
+		const parsed = opts.schema.safeParse(json.data);
 		if (!parsed.success) {
 			Effect.logError(parsed.error.message);
 			return yield* new ParseError({ message: "Invalid API response" });

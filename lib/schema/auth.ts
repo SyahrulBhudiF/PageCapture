@@ -23,10 +23,10 @@ export const RegisterSchema = z
 	});
 
 export const LoginResponseSchema = z.object({
-	accessToken: z.string(),
-	refreshToken: z.string(),
+	access_token: z.string(),
+	refresh_token: z.string(),
 });
 
 export const RefreshResponseSchema = z.object({
-	accessToken: z.string(),
+	access_token: z.string(),
 });
