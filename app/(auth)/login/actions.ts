@@ -1,19 +1,13 @@
 "use server";
 
+import type { ResponseState } from "@/lib/action/client";
 import { apiFetch } from "@/lib/api/client";
 import { TokenStore } from "@/lib/api/token";
 import { LoginResponseSchema, LoginSchema } from "@/lib/schema/auth";
 import { zodFieldErrors } from "@/lib/utils";
 import { Effect } from "effect";
-import z from "zod";
 
-export type LoginState = {
-	error?: string;
-	success?: boolean;
-	fieldErrors?: Record<string, string[]>;
-} | null;
-
-export async function login(_prevState: LoginState, formData: FormData) {
+export async function login(_prevState: ResponseState, formData: FormData) {
 	return Effect.gen(function* () {
 		const tokenStore = yield* TokenStore;
 

@@ -1,12 +1,17 @@
+"use client";
+
 import type React from "react";
 import { ChevronLeft } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 export default function ({
 	children,
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
+	const router = useRouter();
+
 	return (
 		<main className="w-screen h-screen flex flex-col bg-white">
 			<header className="py-8">
@@ -18,7 +23,7 @@ export default function ({
 			<div className="flex-1 flex justify-center items-center px-4 pb-8">
 				<div className="flex w-full max-w-7xl shadow-xl rounded-xl h-[80vh] max-h-xl">
 					<div className="flex flex-col gap-6 w-full p-6 md:p-8">
-						<ChevronLeft className="w-6 h-6 cursor-pointer" />
+						<ChevronLeft className="w-6 h-6 cursor-pointer" onClick={() => router.back()} />
 						{children}
 					</div>
 

@@ -4,15 +4,16 @@ import Form from "next/form";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useActionState, useEffect } from "react";
-import { login, verifyGoogleToken, type LoginState } from "@/app/(auth)/login/actions";
+import { login, verifyGoogleToken } from "@/app/(auth)/login/actions";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { CredentialResponse, GoogleLogin } from "@react-oauth/google";
+import { type CredentialResponse, GoogleLogin } from "@react-oauth/google";
+import type { ResponseState } from "@/lib/action/client";
 import Link from "next/link";
 
 export default function Login() {
-	const [state, formAction, pending] = useActionState<LoginState, FormData>(login, null);
+	const [state, formAction, pending] = useActionState<ResponseState, FormData>(login, null);
 	const router = useRouter();
 
 	useEffect(() => {
@@ -29,7 +30,7 @@ export default function Login() {
 			});
 			router.push("/dashboard");
 		}
-	}, [state]);
+	}, [state, router.push]);
 
 	async function handleGoogleLogin(credentialResponse: CredentialResponse) {
 		if (typeof window === "undefined") return;
