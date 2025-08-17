@@ -28,7 +28,7 @@ const ErrorSchema = z.object({
 type FetchOptions<TSchema, TBody> = {
 	method?: HttpMethods;
 	body?: TBody;
-	schema: z.ZodType<TSchema>;
+	schema?: z.ZodType<TSchema>;
 	isRefreshAttempt?: boolean;
 	auth?: boolean;
 };
@@ -94,7 +94,7 @@ export function apiFetch<TSchema = unknown, TBody = Record<string, unknown>>(
 			}
 		}
 
-		const json = yield* Effect.tryPromise({
+		let json = yield* Effect.tryPromise({
 			try: () => response.json(),
 			catch: () => new ParseError({ message: "Failed to parse JSON response" }),
 		});
@@ -116,12 +116,14 @@ export function apiFetch<TSchema = unknown, TBody = Record<string, unknown>>(
 			});
 		}
 
-		const parsed = opts.schema.safeParse(json.data);
-		if (!parsed.success) {
-			Effect.logError(parsed.error.message);
-			return yield* new ParseError({ message: "Invalid API response" });
+		if (opts.schema) {
+			json = opts.schema.safeParse(json.data);
+			if (!json.success) {
+				Effect.logError(json.error.message);
+				return yield* new ParseError({ message: "Invalid API response" });
+			}
 		}
 
-		return parsed.data as TSchema;
+		return json.data as TSchema;
 	}).pipe(Effect.withSpan("apiFetch"), Effect.provide(TokenStore.Default));
 }

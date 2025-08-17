@@ -1,10 +1,8 @@
 "use client";
 
 import Form from "next/form";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { useActionState, useEffect } from "react";
-import { login, verifyGoogleToken } from "@/app/(auth)/login/actions";
+import { login, verifyGoogleToken } from "@/app/(auth)/actions";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -12,8 +10,10 @@ import { type CredentialResponse, GoogleLogin } from "@react-oauth/google";
 import type { ResponseState } from "@/lib/action/client";
 import Link from "next/link";
 import { FormField } from "@/components/custom/FormField";
+import { GoogleLoginButton } from "@/components/custom/GoogleButton";
+import { PasswordInput } from "@/components/custom/PasswordInput";
 
-export default function Login() {
+export default function Page() {
 	const [state, formAction, pending] = useActionState<ResponseState, FormData>(login, null);
 	const router = useRouter();
 
@@ -33,28 +33,6 @@ export default function Login() {
 		}
 	}, [state, router.push]);
 
-	async function handleGoogleLogin(credentialResponse: CredentialResponse) {
-		if (typeof window === "undefined") return;
-
-		if (!credentialResponse.credential) {
-			toast.error("Login Failed", { description: "Could not get credential from Google." });
-			return;
-		}
-
-		const result = await verifyGoogleToken(credentialResponse.credential);
-
-		if (result.success) {
-			toast.success("Login Successful!", {
-				description: "Redirecting to your dashboard...",
-			});
-			router.push("/dashboard");
-		} else {
-			toast.error("Login Failed", {
-				description: result.error || "An unknown error occurred.",
-			});
-		}
-	}
-
 	return (
 		<div className="flex flex-col items-center justify-center h-full gap-6">
 			<p className="font-semibold text-5xl">Welcome Back!</p>
@@ -69,10 +47,9 @@ export default function Login() {
 						required
 						error={state?.fieldErrors?.email?.[0]}
 					/>
-					<FormField
+					<PasswordInput
 						id="password"
 						name="password"
-						type="password"
 						label="Password"
 						placeholder="Fill in your password"
 						required
@@ -89,18 +66,7 @@ export default function Login() {
 						Login
 					</Button>
 					<div className="flex justify-center">
-						<GoogleLogin
-							shape="pill"
-							width="150"
-							locale="en_US"
-							onSuccess={(res) => void handleGoogleLogin(res)}
-							onError={() => {
-								toast.error("Login Failed", {
-									description: "Google authentication process failed. Please try again.",
-								});
-							}}
-							useOneTap
-						/>
+						<GoogleLoginButton context="Login" />
 					</div>
 					<Link href="/register" className="text-sm underline flex justify-center">
 						I don't have an account
