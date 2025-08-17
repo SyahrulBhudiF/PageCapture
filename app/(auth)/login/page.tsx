@@ -2,26 +2,38 @@
 
 import Form from "next/form";
 import { useActionState, useEffect } from "react";
-import { login, verifyGoogleToken } from "@/app/(auth)/actions";
+import { login } from "@/app/(auth)/actions";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { type CredentialResponse, GoogleLogin } from "@react-oauth/google";
 import type { ResponseState } from "@/lib/action/client";
 import Link from "next/link";
 import { FormField } from "@/components/custom/FormField";
 import { GoogleLoginButton } from "@/components/custom/GoogleButton";
 import { PasswordInput } from "@/components/custom/PasswordInput";
+import { useVerifyEmail } from "@/lib/store/VerifyEmail";
 
 export default function Page() {
 	const [state, formAction, pending] = useActionState<ResponseState, FormData>(login, null);
+	const { setEmail, clearEmail } = useVerifyEmail();
 	const router = useRouter();
 
 	useEffect(() => {
+		if (state?.code === 403) {
+			toast.warning("Login failed", {
+				description:
+					"Please verify your email before logging in. Check your inbox for the verification email.",
+			});
+			router.push("/verify-email");
+
+			return;
+		}
+
 		if (state?.error) {
 			toast.warning("Login failed", {
 				description: `${state.error}`,
 			});
+
 			return;
 		}
 
@@ -29,9 +41,11 @@ export default function Page() {
 			toast.success("Login successful", {
 				description: "Welcome back!",
 			});
+
+			clearEmail();
 			router.push("/dashboard");
 		}
-	}, [state, router.push]);
+	}, [state, router.push, clearEmail]);
 
 	return (
 		<div className="flex flex-col items-center justify-center h-full gap-6">
@@ -44,6 +58,7 @@ export default function Page() {
 						type="email"
 						label="Email"
 						placeholder="Fill in your email"
+						onChange={(e) => setEmail(e.target.value)}
 						required
 						error={state?.fieldErrors?.email?.[0]}
 					/>
@@ -63,7 +78,7 @@ export default function Page() {
 						disabled={pending}
 						className="bg-primary w-full text-white font-semibold py-6 rounded-lg shadow-lg hover:brightness-90 cursor-pointer transition duration-300 ease-in-out"
 					>
-						Login
+						{pending ? "Logging in..." : "Login"}
 					</Button>
 					<div className="flex justify-center">
 						<GoogleLoginButton context="Login" />

@@ -5,14 +5,14 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 
-type PasswordInputProps = {
+interface PasswordInputProps {
 	id: string;
 	name: string;
 	label: string;
 	placeholder?: string;
 	required?: boolean;
 	error?: string;
-};
+}
 
 export function PasswordInput({
 	id,

@@ -31,3 +31,8 @@ export const LoginResponseSchema = z.object({
 export const RefreshResponseSchema = z.object({
 	access_token: z.string(),
 });
+
+export const VerifyOtpSchema = z.object({
+	email: z.email(),
+	otp: z.string().min(6).max(6),
+});

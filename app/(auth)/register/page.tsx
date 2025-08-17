@@ -2,7 +2,7 @@
 
 import { FormField } from "@/components/custom/FormField";
 import { Button } from "@/components/ui/button";
-import { ResponseState } from "@/lib/action/client";
+import type { ResponseState } from "@/lib/action/client";
 import Form from "next/form";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -11,10 +11,16 @@ import { register } from "../actions";
 import { GoogleLoginButton } from "@/components/custom/GoogleButton";
 import { PasswordInput } from "@/components/custom/PasswordInput";
 import { toast } from "sonner";
+import { useVerifyEmail } from "@/lib/store/VerifyEmail";
+import type { User } from "@/lib/model/user";
 
-export default function Register() {
-	const [state, formAction, pending] = useActionState<ResponseState, FormData>(register, null);
+export default function Page() {
+	const [state, formAction, pending] = useActionState<ResponseState<User>, FormData>(
+		register,
+		null,
+	);
 	const router = useRouter();
+	const { setEmail } = useVerifyEmail();
 
 	useEffect(() => {
 		if (state?.error) {
@@ -28,9 +34,13 @@ export default function Register() {
 			toast.success("Registration successful", {
 				description: "Please check your email to verify your account.",
 			});
+
+			if (state.data?.email) {
+				setEmail(state.data.email);
+			}
 			router.push("/verify-email");
 		}
-	}, [state, router.push]);
+	}, [state, router.push, setEmail]);
 
 	return (
 		<div className="flex flex-col items-center justify-center h-full gap-4">
@@ -79,7 +89,7 @@ export default function Register() {
 						disabled={pending}
 						className="bg-primary w-full text-white font-semibold py-6 rounded-lg shadow-lg hover:brightness-90 cursor-pointer transition duration-300 ease-in-out"
 					>
-						Register
+						{pending ? "Registering..." : "Register"}
 					</Button>
 					<div className="flex justify-center">
 						<GoogleLoginButton context="Register" />
