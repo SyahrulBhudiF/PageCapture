@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { type CredentialResponse, GoogleLogin } from "@react-oauth/google";
 import type { ResponseState } from "@/lib/action/client";
 import Link from "next/link";
+import { FormField } from "@/components/custom/FormField";
 
 export default function Login() {
 	const [state, formAction, pending] = useActionState<ResponseState, FormData>(login, null);
@@ -59,34 +60,24 @@ export default function Login() {
 			<p className="font-semibold text-5xl">Welcome Back!</p>
 			<Form action={formAction} formMethod="POST" className="flex flex-col gap-14 w-[80%]">
 				<div className="space-y-6">
-					<Label htmlFor="email" className="text-md flex flex-col gap-2">
-						<p className="text-start w-full">Email</p>
-						<Input
-							id="email"
-							name="email"
-							type="email"
-							placeholder="Fill in your email"
-							className="shadow-xl py-6"
-							required
-						/>
-						{state?.fieldErrors?.email?.[0] && (
-							<p className="text-red-500 text-sm">{state.fieldErrors.email[0]}</p>
-						)}
-					</Label>
-					<Label htmlFor="password" className="text-md flex flex-col gap-2">
-						<p className="text-start w-full">Password</p>
-						<Input
-							id="password"
-							name="password"
-							type="password"
-							placeholder="Fill in your password"
-							className="shadow-xl py-6"
-							required
-						/>
-						{state?.fieldErrors?.password?.[0] && (
-							<p className="text-red-500 text-sm">{state.fieldErrors.password[0]}</p>
-						)}
-					</Label>
+					<FormField
+						id="email"
+						name="email"
+						type="email"
+						label="Email"
+						placeholder="Fill in your email"
+						required
+						error={state?.fieldErrors?.email?.[0]}
+					/>
+					<FormField
+						id="password"
+						name="password"
+						type="password"
+						label="Password"
+						placeholder="Fill in your password"
+						required
+						error={state?.fieldErrors?.password?.[0]}
+					/>
 				</div>
 				<div className="space-y-8">
 					<Button
