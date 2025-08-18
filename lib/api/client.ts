@@ -50,8 +50,9 @@ export function apiFetch<TSchema = unknown, TBody = Record<string, unknown>>(
 		const headers = new Headers();
 		headers.set("Content-Type", "application/json");
 
-		if (opts.auth && tokenStore.get()) {
-			headers.set("Authorization", `Bearer ${tokenStore.get()}`);
+		const token = yield* Effect.promise(() => tokenStore.get());
+		if (opts.auth && token) {
+			headers.set("Authorization", `Bearer ${token}`);
 		}
 
 		const response = yield* Effect.tryPromise({

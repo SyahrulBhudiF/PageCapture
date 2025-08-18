@@ -43,9 +43,9 @@ export default function Page() {
 	}, [state, router.push, setEmail]);
 
 	return (
-		<div className="flex flex-col items-center justify-center h-full gap-4">
-			<p className="font-semibold text-5xl">Welcome!</p>
-			<Form action={formAction} formMethod="POST" className="flex flex-col gap-10 w-[80%]">
+		<section className="flex flex-col items-center justify-center h-full gap-4">
+			<h1 className="font-semibold text-5xl">Welcome!</h1>
+			<Form action={formAction} formMethod="POST" className="flex flex-col gap-12 w-[80%]">
 				<div className="space-y-4">
 					<FormField
 						id="name"
@@ -87,7 +87,7 @@ export default function Page() {
 						type="submit"
 						variant="default"
 						disabled={pending}
-						className="bg-primary w-full text-white font-semibold py-6 rounded-lg shadow-lg hover:brightness-90 cursor-pointer transition duration-300 ease-in-out"
+						className="bg-primary w-full text-white font-semibold py-6 rounded-lg shadow-lg hover:brightness-90 cursor-pointer transition duration-300 ease-in-out active:scale-95"
 					>
 						{pending ? "Registering..." : "Register"}
 					</Button>
@@ -99,6 +99,6 @@ export default function Page() {
 					</Link>
 				</div>
 			</Form>
-		</div>
+		</section>
 	);
 }

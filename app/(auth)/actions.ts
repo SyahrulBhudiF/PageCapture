@@ -4,6 +4,7 @@ import type { ResponseState } from "@/lib/action/client";
 import { apiFetch } from "@/lib/api/client";
 import { TokenStore } from "@/lib/api/token";
 import {
+	ForgotPasswordSchema,
 	LoginResponseSchema,
 	LoginSchema,
 	RegisterSchema,
@@ -166,7 +167,7 @@ export async function sendOtp(_prevState: ResponseState, formData: FormData) {
 			UnauthorizedError: (error) =>
 				Effect.succeed({
 					success: false,
-					error: error.message || "Verification failed",
+					error: error.message || "Verification failed - email not found",
 				}),
 			ParseError: (error) => Effect.succeed({ success: false, error: error.message }),
 			NetworkError: () => Effect.succeed({ success: false, error: "Network error occurred" }),
@@ -209,6 +210,50 @@ export async function verifyEmail(_prevState: ResponseState, formData: FormData)
 				Effect.succeed({
 					success: false,
 					error: error.message || "Verification failed",
+				}),
+			ParseError: (error) => Effect.succeed({ success: false, error: error.message }),
+			NetworkError: () => Effect.succeed({ success: false, error: "Network error occurred" }),
+		}),
+		Effect.runPromise,
+	);
+}
+
+export async function resetPassword(_prevState: ResponseState, formData: FormData) {
+	return Effect.gen(function* () {
+		const parsedInput = ForgotPasswordSchema.safeParse({
+			email: formData.get("email") as string,
+			otp: formData.get("otp") as string,
+			password: formData.get("password") as string,
+			confirm: formData.get("confirm") as string,
+		});
+
+		if (!parsedInput.success) {
+			return {
+				success: false,
+				fieldErrors: zodFieldErrors(parsedInput.error),
+			};
+		}
+
+		yield* apiFetch("auth/forgot-password", {
+			method: "POST",
+			body: parsedInput.data,
+			auth: false,
+		});
+
+		return { success: true, error: undefined };
+	}).pipe(
+		Effect.withSpan("resetPassword"),
+		Effect.catchTags({
+			ApiError: (error) =>
+				Effect.succeed({
+					success: false,
+					error: error.message,
+					code: error.status,
+				}),
+			UnauthorizedError: (error) =>
+				Effect.succeed({
+					success: false,
+					error: error.message || "Reset password failed",
 				}),
 			ParseError: (error) => Effect.succeed({ success: false, error: error.message }),
 			NetworkError: () => Effect.succeed({ success: false, error: "Network error occurred" }),

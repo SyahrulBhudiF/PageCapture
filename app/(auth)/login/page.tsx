@@ -48,8 +48,8 @@ export default function Page() {
 	}, [state, router.push, clearEmail]);
 
 	return (
-		<div className="flex flex-col items-center justify-center h-full gap-6">
-			<p className="font-semibold text-5xl">Welcome Back!</p>
+		<section className="flex flex-col items-center justify-center h-full gap-6">
+			<h1 className="font-semibold text-5xl">Welcome Back!</h1>
 			<Form action={formAction} formMethod="POST" className="flex flex-col gap-14 w-[80%]">
 				<div className="space-y-6">
 					<FormField
@@ -71,16 +71,24 @@ export default function Page() {
 						error={state?.fieldErrors?.password?.[0]}
 					/>
 				</div>
-				<div className="space-y-8">
-					<Button
-						type="submit"
-						variant="default"
-						disabled={pending}
-						className="bg-primary w-full text-white font-semibold py-6 rounded-lg shadow-lg hover:brightness-90 cursor-pointer transition duration-300 ease-in-out"
-					>
-						{pending ? "Logging in..." : "Login"}
-					</Button>
-					<div className="flex justify-center">
+				<div className="space-y-6">
+					<div className="flex flex-col gap-2">
+						<Button
+							type="submit"
+							variant="default"
+							disabled={pending}
+							className="bg-primary w-full text-white font-semibold py-6 rounded-lg shadow-lg hover:brightness-90 cursor-pointer transition duration-300 ease-in-out active:scale-95"
+						>
+							{pending ? "Logging in..." : "Login"}
+						</Button>
+						<Link
+							href="/forgot"
+							className="text-xs text-end pr-1 text-gray-600 transition duration-300 ease-in-out hover:text-black"
+						>
+							Forgot your password?
+						</Link>
+					</div>
+					<div className="flex justify-center active:scale-95 transition duration-300 ease-in-out">
 						<GoogleLoginButton context="Login" />
 					</div>
 					<Link href="/register" className="text-sm underline flex justify-center">
@@ -88,6 +96,6 @@ export default function Page() {
 					</Link>
 				</div>
 			</Form>
-		</div>
+		</section>
 	);
 }

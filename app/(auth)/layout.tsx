@@ -22,17 +22,25 @@ export default function ({
 
 			<div className="flex-1 flex justify-center items-center px-4 pb-8">
 				<div className="flex w-full max-w-7xl shadow-xl rounded-xl h-[80vh] max-h-xl">
-					<div className="flex flex-col gap-6 w-full p-6 md:p-8">
+					<div className="flex flex-col w-full p-6 md:p-8">
 						<ChevronLeft className="w-6 h-6 cursor-pointer" onClick={() => router.back()} />
 						{children}
 					</div>
 
-					<div className="hidden md:block w-full h-full relative">
+					<div className="hidden md:block overflow-hidden w-full h-full relative bg-black rounded-r-xl ">
+						<div className="h-full flex flex-col justify-between p-8 relative z-10">
+							<p className="text-5xl font-bold text-start text-white">
+								See website <br /> with Different <br /> Dimension
+							</p>
+							<p className="text-5xl font-bold text-end text-white">
+								Something <br /> you’ve never <br /> seen before
+							</p>
+						</div>
 						<Image
-							src="/img/banner.png"
+							src="/img/auth-block.svg"
 							fill
-							alt="Page Capture Illustration"
-							className="object-fill rounded-r-xl"
+							alt="Page Capture block"
+							className="object-fill absolute bottom-0 z-0"
 							priority
 						/>
 					</div>
