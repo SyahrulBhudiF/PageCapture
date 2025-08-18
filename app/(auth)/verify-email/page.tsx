@@ -50,8 +50,7 @@ export default function Page() {
 	useEffect(() => {
 		if (sendState?.success) {
 			toast.success("OTP sent successfully!");
-
-        } else if (sendState?.error) {
+		} else if (sendState?.error) {
 			toast.error(sendState.error || "Failed to send OTP");
 		}
 	}, [sendState]);
@@ -61,8 +60,7 @@ export default function Page() {
 			toast.success("OTP verified successfully!");
 			clearEmail();
 			router.push("/dashboard");
-
-        } else if (verifyState?.error) {
+		} else if (verifyState?.error) {
 			toast.error(verifyState.error || "Failed to verify OTP");
 		}
 	}, [verifyState, router, clearEmail]);
