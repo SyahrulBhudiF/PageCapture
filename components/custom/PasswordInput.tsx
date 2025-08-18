@@ -36,11 +36,17 @@ export function PasswordInput({
 					required={required}
 					className="shadow-xl py-6 w-full"
 				/>
-				<div className="absolute inset-y-0 right-0 pr-5 cursor-pointer w-fit flex items-center">
+				<div className="absolute inset-y-0 right-0 pr-5 w-fit flex items-center">
 					{state ? (
-						<EyeIcon onClick={() => setState(false)} />
+						<EyeIcon
+							className="w-5 h-5 text-gray-500 cursor-pointer"
+							onClick={() => setState(false)}
+						/>
 					) : (
-						<EyeOffIcon onClick={() => setState(true)} />
+						<EyeOffIcon
+							className="w-5 h-5 text-gray-500 cursor-pointer"
+							onClick={() => setState(true)}
+						/>
 					)}
 				</div>
 			</div>

@@ -78,7 +78,7 @@ export default function Page() {
 	if (!email) return null;
 
 	return (
-		<div className="flex flex-col justify-center items-center h-full w-full">
+		<section className="flex flex-col justify-center items-center h-full w-full">
 			<div className="flex flex-col gap-8 w-full max-w-lg">
 				<div className="flex flex-col gap-2">
 					<h1 className="text-4xl font-bold text-gray-900">Verify your email</h1>
@@ -122,6 +122,6 @@ export default function Page() {
 					</Button>
 				</div>
 			</div>
-		</div>
+		</section>
 	);
 }
