@@ -168,7 +168,7 @@ function ResetForm({
 					label="New Password"
 					placeholder="Enter your new password"
 					required
-					error={resetState?.fieldErrors?.["password"]?.[0]}
+					error={resetState?.fieldErrors?.password?.[0]}
 				/>
 				<PasswordInput
 					id="confirm"
@@ -176,7 +176,7 @@ function ResetForm({
 					label="Confirm Password"
 					placeholder="Confirm your new password"
 					required
-					error={resetState?.fieldErrors?.["confirm"]?.[0]}
+					error={resetState?.fieldErrors?.confirm?.[0]}
 				/>
 
 				<Button
