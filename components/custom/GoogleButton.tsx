@@ -10,7 +10,7 @@ interface GoogleLoginButtonProps {
 	context: "Login" | "Register";
 }
 
-export function GoogleLoginButton({ redirectTo = "/dashboard", context }: GoogleLoginButtonProps) {
+export function GoogleLoginButton({ redirectTo = "/capture", context }: GoogleLoginButtonProps) {
 	const router = useRouter();
 
 	async function handleGoogleLogin(credentialResponse: CredentialResponse) {
@@ -25,7 +25,7 @@ export function GoogleLoginButton({ redirectTo = "/dashboard", context }: Google
 
 		if (result.success) {
 			toast.success(`${context} Successful!`, {
-				description: `Redirecting to your ${context === "Login" ? "dashboard" : "welcome page"}...`,
+				description: `Redirecting to your ${context === "Login" ? "Capture" : "Welcome"}...`,
 			});
 			router.push(redirectTo);
 		} else {

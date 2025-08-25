@@ -14,7 +14,7 @@ export class TokenStore extends Effect.Service<TokenStore>()("TokenStore", {
 					httpOnly: true,
 					secure: process.env.NODE_ENV === "production",
 					path: "/",
-					maxAge: 60 * 60,
+					maxAge: 60 * 60 * 2,
 				});
 			},
 			clear: async () => {

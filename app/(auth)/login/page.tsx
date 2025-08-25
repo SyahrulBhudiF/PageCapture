@@ -43,7 +43,7 @@ export default function Page() {
 			});
 
 			clearEmail();
-			router.push("/dashboard");
+			router.push("/capture");
 		}
 	}, [state, router.push, clearEmail]);
 

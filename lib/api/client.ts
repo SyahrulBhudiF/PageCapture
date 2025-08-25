@@ -90,7 +90,7 @@ export function apiFetch<TSchema = unknown, TBody = Record<string, unknown>>(
 					isRefreshAttempt: true,
 				});
 			} else {
-				tokenStore.clear();
+				console.log("Refresh token invalid or expired", refreshRes);
 				yield* new UnauthorizedError();
 			}
 		}
