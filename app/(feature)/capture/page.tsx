@@ -83,7 +83,10 @@ export default function Page() {
 					<Link className="text-gray-400" />
 				</Label>
 
-				<button className="flex items-center cursor-pointer gap-2 px-4 sm:px-5 md:px-6 py-2 sm:py-2.5 md:py-3 bg-gradient-to-r from-pink-500 to-purple-500 rounded-lg text-white shadow-md text-sm sm:text-base md:text-lg">
+				<button
+					type="button"
+					className="flex items-center cursor-pointer gap-2 px-4 sm:px-5 md:px-6 py-2 sm:py-2.5 md:py-3 bg-gradient-to-r from-pink-500 to-purple-500 rounded-lg text-white shadow-md text-sm sm:text-base md:text-lg"
+				>
 					<History />
 					Conversion History
 				</button>

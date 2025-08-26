@@ -1,6 +1,6 @@
 "use client";
 
-import { User } from "@/lib/model/user";
+import type { User } from "@/lib/model/user";
 import { type ActiveMenu, useActiveMenu } from "@/lib/store/ActiveMenu";
 import { useUserStore } from "@/lib/store/ActiveUser";
 import { cn } from "@/lib/utils";
@@ -43,8 +43,12 @@ export const NavBar = ({ userData }: { userData?: Partial<User> | null }) => {
 			<nav>
 				<ul className="flex space-x-4">
 					{menus.map((menu) => (
-						<li key={menu.key} onClick={() => setActiveMenu(menu.key)} className="cursor-pointer">
-							<a href={`/${menu.key}`} className={menuClass(menu.key)}>
+						<li key={menu.key} className="cursor-pointer">
+							<a
+								href={`/${menu.key}`}
+								onClick={() => setActiveMenu(menu.key)}
+								className={menuClass(menu.key)}
+							>
 								{menu.label}
 							</a>
 						</li>

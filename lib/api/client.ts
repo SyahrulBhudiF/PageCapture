@@ -29,7 +29,6 @@ type FetchOptions<TSchema, TBody> = {
 	method?: HttpMethods;
 	body?: TBody;
 	schema?: z.ZodType<TSchema>;
-	isRefreshAttempt?: boolean;
 	auth?: boolean;
 };
 
@@ -50,9 +49,15 @@ export function apiFetch<TSchema = unknown, TBody = Record<string, unknown>>(
 		const headers = new Headers();
 		headers.set("Content-Type", "application/json");
 
-		const token = yield* Effect.promise(() => tokenStore.get());
-		if (opts.auth && token) {
-			headers.set("Authorization", `Bearer ${token}`);
+		if (opts.auth) {
+			const token = yield* Effect.promise(() => tokenStore.getAccessToken());
+			console.log("Token found by apiFetch:", token);
+
+			if (token) {
+				headers.set("Authorization", `Bearer ${token}`);
+			} else {
+				return yield* new UnauthorizedError();
+			}
 		}
 
 		const response = yield* Effect.tryPromise({
@@ -69,30 +74,8 @@ export function apiFetch<TSchema = unknown, TBody = Record<string, unknown>>(
 				}),
 		});
 
-		if (
-			opts.auth &&
-			response.status === 401 &&
-			!opts.isRefreshAttempt &&
-			path !== "/auth/refresh"
-		) {
-			const refreshRes = yield* Effect.tryPromise({
-				try: () => fetch(`${baseUrl}/auth/refresh`, { method: "POST", credentials: "include" }),
-				catch: (err) =>
-					new NetworkError({ message: err instanceof Error ? err.message : "Network error" }),
-			});
-
-			if (refreshRes.ok) {
-				const refreshData = yield* Effect.tryPromise(() => refreshRes.json());
-				tokenStore.set(refreshData.accessToken);
-
-				return yield* apiFetch<TSchema, TBody>(path, {
-					...opts,
-					isRefreshAttempt: true,
-				});
-			} else {
-				console.log("Refresh token invalid or expired", refreshRes);
-				yield* new UnauthorizedError();
-			}
+		if (response.status === 401 && opts.auth) {
+			return yield* new UnauthorizedError();
 		}
 
 		let json = yield* Effect.tryPromise({

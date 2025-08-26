@@ -4,22 +4,46 @@ import { Effect } from "effect";
 export class TokenStore extends Effect.Service<TokenStore>()("TokenStore", {
 	effect: Effect.gen(function* () {
 		return {
-			get: async () => {
+			getAccessToken: async () => {
 				const c = await cookies();
-				return c.get("token")?.value ?? null;
+				return c.get("access_token")?.value ?? null;
 			},
-			set: async (token: string) => {
+			setAccessToken: async (token: string) => {
 				const c = await cookies();
-				c.set("token", token, {
+				c.set("access_token", token, {
 					httpOnly: true,
 					secure: process.env.NODE_ENV === "production",
 					path: "/",
-					maxAge: 60 * 60 * 2,
+					maxAge: 60 * 60,
 				});
 			},
-			clear: async () => {
+			clearAccessToken: async () => {
 				const c = await cookies();
-				c.delete("token");
+				c.delete("access_token");
+			},
+
+			getRefreshToken: async () => {
+				const c = await cookies();
+				return c.get("refresh_token")?.value ?? null;
+			},
+			setRefreshToken: async (token: string) => {
+				const c = await cookies();
+				c.set("refresh_token", token, {
+					httpOnly: true,
+					secure: process.env.NODE_ENV === "production",
+					path: "/",
+					maxAge: 60 * 60 * 24 * 7,
+				});
+			},
+			clearRefreshToken: async () => {
+				const c = await cookies();
+				c.delete("refresh_token");
+			},
+
+			clearAll: async () => {
+				const c = await cookies();
+				c.delete("access_token");
+				c.delete("refresh_token");
 			},
 		} as const;
 	}),

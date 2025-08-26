@@ -1,8 +1,8 @@
 import { apiFetch } from "@/lib/api/client";
 import { Effect } from "effect";
 import { userResponseSchema } from "@/lib/schema/user";
-import { ResponseState } from "@/lib/action/client";
-import z from "zod";
+import type { ResponseState } from "@/lib/action/client";
+import type z from "zod";
 
 export async function getUser(): Promise<ResponseState<z.infer<typeof userResponseSchema>>> {
 	return Effect.gen(function* () {

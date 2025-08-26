@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { User } from "../model/user";
+import type { User } from "../model/user";
 import { persist } from "zustand/middleware";
 
 type UserState = {

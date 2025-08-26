@@ -37,7 +37,10 @@ export async function login(_prevState: ResponseState, formData: FormData) {
 			auth: false,
 		});
 
-		tokenStore.set(response.access_token);
+		yield* Effect.promise(async () => {
+			await tokenStore.setAccessToken(response.access_token);
+			await tokenStore.setRefreshToken(response.refresh_token);
+		});
 
 		return { success: true, error: undefined };
 	}).pipe(
@@ -77,7 +80,10 @@ export async function verifyGoogleToken(googleToken: string) {
 			auth: false,
 		});
 
-		tokenStore.set(response.access_token);
+		yield* Effect.promise(async () => {
+			await tokenStore.setAccessToken(response.access_token);
+			await tokenStore.setRefreshToken(response.refresh_token);
+		});
 
 		return { success: true, error: undefined };
 	}).pipe(
